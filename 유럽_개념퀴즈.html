@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌍 유럽 개념 퀴즈</title>
+<style>
+  :root {
+    --blue: #1a6bb5;
+    --blue-light: #e8f0fa;
+    --green: #2e9e5b;
+    --green-light: #e6f6ec;
+    --red: #d63636;
+    --red-light: #fdeaea;
+    --yellow: #f5a623;
+    --yellow-light: #fff8e6;
+    --gray: #6c757d;
+    --gray-light: #f4f5f7;
+    --dark: #1e2433;
+    --white: #ffffff;
+    --radius: 14px;
+    --shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+    background: linear-gradient(135deg, #1a3a6b 0%, #0d5fa6 50%, #1a6bb5 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  #app {
+    width: 100%;
+    max-width: 720px;
+  }
+
+  /* ── 헤더 ── */
+  .header {
+    text-align: center;
+    color: white;
+    margin-bottom: 24px;
+  }
+  .header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; }
+  .header p  { font-size: 1rem; opacity: 0.85; margin-top: 6px; }
+
+  /* ── 카드 공통 ── */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px;
+    margin-bottom: 16px;
+    animation: fadeUp 0.35s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── 진행 바 ── */
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 10px;
+    background: #dde3ee;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue), #5ba0e0);
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-label { font-size: 0.85rem; color: var(--gray); white-space: nowrap; font-weight: 600; }
+
+  /* ── 카테고리 뱃지 ── */
+  .badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    background: var(--blue-light);
+    color: var(--blue);
+    letter-spacing: 0.3px;
+  }
+
+  /* ── 문제 ── */
+  .question-num { font-size: 0.82rem; color: var(--gray); margin-bottom: 6px; }
+  .question-text {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--dark);
+    line-height: 1.55;
+    margin-bottom: 20px;
+  }
+  .question-hint {
+    font-size: 0.88rem;
+    color: var(--gray);
+    background: var(--gray-light);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ── 보기 버튼 ── */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border: 2.5px solid #dde3ee;
+    border-radius: 10px;
+    background: var(--white);
+    cursor: pointer;
+    font-size: 0.97rem;
+    font-family: inherit;
+    color: var(--dark);
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--blue);
+    background: var(--blue-light);
+    transform: translateX(3px);
+  }
+  .option-btn .opt-label {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: #edf0f7;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 0.88rem;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+  }
+  .option-btn.correct {
+    border-color: var(--green);
+    background: var(--green-light);
+    animation: correctPop 0.35s ease both;
+  }
+  .option-btn.correct .opt-label { background: var(--green); color: white; }
+  .option-btn.wrong {
+    border-color: var(--red);
+    background: var(--red-light);
+    animation: shake 0.4s ease both;
+  }
+  .option-btn.wrong .opt-label { background: var(--red); color: white; }
+  .option-btn.reveal {
+    border-color: var(--green);
+    background: var(--green-light);
+    opacity: 0.85;
+  }
+  .option-btn.reveal .opt-label { background: var(--green); color: white; }
+  .option-btn:disabled { cursor: default; }
+
+  @keyframes correctPop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.04); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-8px); }
+    40%     { transform: translateX(8px); }
+    60%     { transform: translateX(-5px); }
+    80%     { transform: translateX(5px); }
+  }
+
+  /* ── 피드백 박스 ── */
+  .feedback {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 0.93rem;
+    line-height: 1.55;
+    display: none;
+    animation: fadeUp 0.3s ease both;
+  }
+  .feedback.correct { background: var(--green-light); border-left: 4px solid var(--green); color: #1a5c35; }
+  .feedback.wrong   { background: var(--red-light);   border-left: 4px solid var(--red);   color: #7a1c1c; }
+  .feedback .emoji  { font-size: 1.3rem; margin-right: 4px; }
+  .feedback strong  { font-weight: 800; }
+
+  /* ── 다음 버튼 ── */
+  .btn-next {
+    display: none;
+    margin-top: 18px;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    background: linear-gradient(90deg, var(--blue), #3a8fe0);
+    color: white;
+    letter-spacing: 0.3px;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn-next:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  /* ── 점수 화면 ── */
+  #score-screen { text-align: center; }
+  .score-circle {
+    width: 130px; height: 130px;
+    border-radius: 50%;
+    margin: 16px auto 20px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-weight: 900;
+    font-size: 2.4rem;
+    color: white;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    animation: popIn 0.5s cubic-bezier(.175,.885,.32,1.275) both;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.4); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+  .score-circle span { font-size: 0.95rem; font-weight: 600; opacity: 0.85; }
+  .score-msg { font-size: 1.1rem; color: var(--dark); margin-bottom: 6px; font-weight: 700; }
+  .score-sub { font-size: 0.9rem; color: var(--gray); margin-bottom: 24px; }
+
+  /* ── 오답 복습 ── */
+  .review-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .review-item {
+    border: 2px solid #f0d0d0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    background: #fff9f9;
+    text-align: left;
+    animation: fadeUp 0.3s ease both;
+  }
+  .review-item .r-num   { font-size: 0.78rem; color: var(--red); font-weight: 700; margin-bottom: 4px; }
+  .review-item .r-q     { font-size: 0.95rem; color: var(--dark); font-weight: 700; margin-bottom: 8px; line-height: 1.45; }
+  .review-item .r-my    { font-size: 0.88rem; color: var(--red); margin-bottom: 4px; }
+  .review-item .r-ans   { font-size: 0.88rem; color: var(--green); font-weight: 700; margin-bottom: 6px; }
+  .review-item .r-exp   { font-size: 0.87rem; color: #444; background: #f5f5f5; border-radius: 6px; padding: 8px 10px; line-height: 1.5; }
+
+  .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+  .btn-retry, .btn-review {
+    flex: 1;
+    padding: 13px;
+    border: none; border-radius: 10px;
+    font-size: 0.95rem; font-family: inherit; font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn-retry  { background: linear-gradient(90deg, var(--blue), #3a8fe0); color: white; }
+  .btn-review { background: var(--yellow-light); color: #7a5000; border: 2px solid var(--yellow); }
+  .btn-retry:hover, .btn-review:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  /* ── 시작 화면 ── */
+  #start-screen { text-align: center; }
+  #start-screen h2 { font-size: 1.3rem; font-weight: 800; color: var(--dark); margin-bottom: 10px; }
+  #start-screen p  { font-size: 0.93rem; color: var(--gray); line-height: 1.6; margin-bottom: 20px; }
+  .topics { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 22px; }
+  .topic-chip {
+    padding: 6px 14px; border-radius: 99px;
+    font-size: 0.83rem; font-weight: 600;
+    background: var(--blue-light); color: var(--blue);
+  }
+  .btn-start {
+    display: block; width: 100%;
+    padding: 16px; border: none; border-radius: 10px;
+    font-size: 1.05rem; font-family: inherit; font-weight: 800;
+    cursor: pointer;
+    background: linear-gradient(90deg, var(--blue), #3a8fe0);
+    color: white;
+    letter-spacing: 0.5px;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn-start:hover { opacity: 0.9; transform: translateY(-2px); }
+
+  /* ── 반응형 ── */
+  @media (max-width: 500px) {
+    .header h1 { font-size: 1.5rem; }
+    .card { padding: 20px; }
+    .question-text { font-size: 1.05rem; }
+  }
+
+  /* ── 오답노트 전용 아이콘 ── */
+  .wrong-icon::before { content: '❌'; margin-right: 4px; }
+  .correct-icon::before { content: '✅'; margin-right: 4px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <h1>🌍 유럽 개념 퀴즈</h1>
+    <p>미래엔 사회1 · 3단원 · 유럽</p>
+  </div>
+
+  <!-- 시작 화면 -->
+  <div class="card" id="start-screen">
+    <h2>퀴즈를 시작해볼까요? 🚀</h2>
+    <p>유럽의 자연환경, 다양한 문화, 유럽 연합(EU)에 관한<br>
+       <strong>총 20문제</strong>를 풀어봅니다.<br>
+       틀린 문제는 마지막에 <strong>오답 노트</strong>로 다시 확인할 수 있어요!</p>
+    <div class="topics">
+      <span class="topic-chip">🏔️ 유럽의 자연환경</span>
+      <span class="topic-chip">🌦️ 기후</span>
+      <span class="topic-chip">🗣️ 언어·종교</span>
+      <span class="topic-chip">🏛️ 역사·문화</span>
+      <span class="topic-chip">🇪🇺 유럽 연합</span>
+      <span class="topic-chip">♻️ 환경 문제</span>
+    </div>
+    <button class="btn-start" onclick="startQuiz()">퀴즈 시작하기 ▶</button>
+  </div>
+
+  <!-- 퀴즈 화면 -->
+  <div class="card" id="quiz-screen" style="display:none">
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+      <div class="progress-label" id="prog-label"></div>
+    </div>
+    <div class="badge" id="q-badge"></div>
+    <div class="question-num" id="q-num"></div>
+    <div class="question-text" id="q-text"></div>
+    <div class="question-hint" id="q-hint" style="display:none">💡 <span id="q-hint-text"></span></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">다음 문제 →</button>
+  </div>
+
+  <!-- 결과 화면 -->
+  <div class="card" id="score-screen" style="display:none">
+    <div class="score-circle" id="score-circle">
+      <span id="score-fraction"></span>
+      <span>점수</span>
+    </div>
+    <div class="score-msg" id="score-msg"></div>
+    <div class="score-sub" id="score-sub"></div>
+    <div class="btn-group">
+      <button class="btn-retry" onclick="retryQuiz()">🔄 다시 풀기</button>
+      <button class="btn-review" id="btn-review" onclick="showReview()" style="display:none">📒 오답 노트 보기</button>
+    </div>
+    <div id="review-section" style="display:none; margin-top:28px;">
+      <div class="review-title">📒 오답 노트</div>
+      <div id="review-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  // ── 1. 자연환경 ──
+  {
+    cat: "🏔️ 자연환경",
+    q: "유럽은 어느 대륙의 서쪽 끝에 위치해 있나요?",
+    opts: ["아시아 대륙", "유라시아 대륙", "아프리카 대륙", "아메리카 대륙"],
+    ans: 1,
+    exp: "유럽은 유라시아 대륙의 서쪽에 위치하며, 우랄산맥을 경계로 아시아와 구분됩니다."
+  },
+  {
+    cat: "🏔️ 자연환경",
+    q: "다음 중 유럽의 중남부를 동서 방향으로 뻗어 있는 산맥으로, 최고봉 몽블랑(4,810 m)이 있는 곳은 어디인가요?",
+    opts: ["피레네 산맥", "아펜니노 산맥", "알프스 산맥", "카르파티아 산맥"],
+    ans: 2,
+    exp: "알프스 산맥은 프랑스·이탈리아·스위스 등 여러 나라에 걸쳐 있으며, 최고봉 몽블랑(4,810m)이 있습니다."
+  },
+  {
+    cat: "🏔️ 자연환경",
+    q: "북해로 흘러 들어가는 유럽의 대표적인 국제 하천으로, 독일·네덜란드 등을 지나는 강은?",
+    opts: ["도나우강", "라인강", "론강", "세느강"],
+    ans: 1,
+    exp: "라인강은 스위스 알프스에서 발원해 독일·네덜란드를 거쳐 북해로 흘러드는 유럽의 주요 국제 하천입니다."
+  },
+  {
+    cat: "🏔️ 자연환경",
+    q: "유럽의 해안선이 복잡하고 굴곡이 많은 가장 큰 이유는 무엇인가요?",
+    opts: [
+      "사막과 초원이 넓게 발달해서",
+      "반도와 섬이 많고 내해(內海)가 발달해서",
+      "산맥이 해안까지 이어져서",
+      "빙하가 녹아 바다에 잠겨서"
+    ],
+    ans: 1,
+    exp: "유럽은 이베리아 반도, 이탈리아 반도, 스칸디나비아 반도 등 반도가 많고 지중해·발트해 등 내해가 발달해 해안선이 복잡합니다."
+  },
+  // ── 2. 기후 ──
+  {
+    cat: "🌦️ 기후",
+    q: "서유럽(영국·프랑스 등)에서 연중 강수량이 고른 편이며, 여름에도 서늘한 기후는?",
+    opts: ["지중해성 기후", "대륙성 기후", "서안 해양성 기후", "툰드라 기후"],
+    ans: 2,
+    exp: "서안 해양성 기후는 편서풍과 난류(북대서양 해류)의 영향으로 연중 온화하고 강수가 고릅니다."
+  },
+  {
+    cat: "🌦️ 기후",
+    q: "지중해 연안 지역에서 나타나는 기후 특징으로 옳은 것은?",
+    opts: [
+      "여름에 강수량이 많고 겨울은 건조하다",
+      "연중 강수량이 고르고 기온 변화가 적다",
+      "여름은 덥고 건조하며 겨울은 온화하고 비가 자주 온다",
+      "1년 내내 기온이 낮고 눈이 많이 내린다"
+    ],
+    ans: 2,
+    exp: "지중해성 기후는 여름에 아열대 고압대의 영향을 받아 덥고 건조하며, 겨울에는 편서풍의 영향으로 온화하고 강수가 있습니다."
+  },
+  {
+    cat: "🌦️ 기후",
+    q: "동유럽과 북유럽 내륙 지역의 기후 특징으로 가장 알맞은 것은?",
+    opts: [
+      "기온 변화가 작고 강수량이 많다",
+      "여름과 겨울의 기온 차가 크며 강수량이 적다",
+      "연중 강수가 많고 매우 습하다",
+      "1년 내내 서늘하고 서리가 없다"
+    ],
+    ans: 1,
+    exp: "내륙에 위치한 동유럽 지역은 바다의 영향을 덜 받아 연교차가 크고 강수량이 상대적으로 적은 대륙성 기후가 나타납니다."
+  },
+  // ── 3. 언어·종교 ──
+  {
+    cat: "🗣️ 언어·종교",
+    q: "영어, 독일어, 네덜란드어, 스웨덴어 등이 속하는 어파(語派)는?",
+    opts: ["라틴어파", "슬라브어파", "게르만어파", "켈트어파"],
+    ans: 2,
+    exp: "영어·독일어·네덜란드어·스웨덴어 등은 게르만어파에 속합니다. 라틴어파에는 프랑스어·스페인어·이탈리아어 등이 속합니다."
+  },
+  {
+    cat: "🗣️ 언어·종교",
+    q: "프랑스어, 스페인어, 포르투갈어, 이탈리아어가 공통으로 속하는 어파는?",
+    opts: ["게르만어파", "라틴어파", "슬라브어파", "그리스어파"],
+    ans: 1,
+    exp: "라틴어파(로망스어파)는 고대 로마의 라틴어에서 발전한 언어 계통으로, 프랑스어·스페인어·이탈리아어·포르투갈어 등이 속합니다."
+  },
+  {
+    cat: "🗣️ 언어·종교",
+    q: "서유럽에서 주로 믿는 크리스트교의 종파는?",
+    opts: ["동방 정교회", "이슬람교", "가톨릭·개신교", "힌두교"],
+    ans: 2,
+    exp: "서유럽에서는 가톨릭(남부)과 개신교(북부·북서부)가 주로 분포합니다. 동방 정교회는 그리스·러시아 등 동유럽에서 많이 믿습니다."
+  },
+  {
+    cat: "🗣️ 언어·종교",
+    q: "그리스·러시아·루마니아 등 동유럽에서 주로 믿는 크리스트교의 종파는?",
+    opts: ["가톨릭", "개신교", "동방 정교회", "성공회"],
+    ans: 2,
+    exp: "동유럽에서는 동방 정교회가 주요 종교로, 콘스탄티노플(이스탄불)을 중심으로 발전하였습니다."
+  },
+  // ── 4. 역사·문화 ──
+  {
+    cat: "🏛️ 역사·문화",
+    q: "14~16세기 이탈리아에서 시작되어 유럽 전역으로 퍼진, 인간 중심의 문화·예술 부흥 운동은?",
+    opts: ["종교 개혁", "르네상스", "산업 혁명", "계몽주의"],
+    ans: 1,
+    exp: "르네상스(Renaissance)는 '재생'을 뜻하며, 그리스·로마의 고전 문화를 부활시키고 인간 중심주의를 강조한 14~16세기의 문화 운동입니다."
+  },
+  {
+    cat: "🏛️ 역사·문화",
+    q: "18세기 영국에서 시작되어 기계 발명과 공장제 생산을 통해 사회·경제를 크게 바꾼 사건은?",
+    opts: ["프랑스 혁명", "르네상스", "산업 혁명", "제1차 세계 대전"],
+    ans: 2,
+    exp: "18세기 영국에서 시작된 산업 혁명은 증기 기관 발명 등을 계기로 생산 방식과 생활양식을 근본적으로 바꾸었습니다."
+  },
+  // ── 5. 유럽 연합(EU) ──
+  {
+    cat: "🇪🇺 유럽 연합",
+    q: "유럽 연합(EU)이 공식 출범한 조약의 이름은?",
+    opts: ["로마 조약", "파리 조약", "마스트리히트 조약", "리스본 조약"],
+    ans: 2,
+    exp: "1993년 마스트리히트 조약(네덜란드 마스트리흐트에서 서명)에 의해 유럽 연합(EU)이 공식 출범하였습니다."
+  },
+  {
+    cat: "🇪🇺 유럽 연합",
+    q: "유럽 연합(EU) 회원국 대부분이 사용하는 단일 화폐는?",
+    opts: ["달러($)", "파운드(£)", "유로(€)", "프랑(CHF)"],
+    ans: 2,
+    exp: "EU 회원국 중 유로존에 가입한 국가들은 유로(€)를 공용 화폐로 사용합니다. 영국은 파운드(£)를 유지했습니다."
+  },
+  {
+    cat: "🇪🇺 유럽 연합",
+    q: "솅겐 협약(Schengen Agreement)의 주요 내용은 무엇인가요?",
+    opts: [
+      "회원국 간 자유 무역을 보장한다",
+      "회원국 시민이 여권 없이 국경을 자유롭게 이동할 수 있다",
+      "공동 군사 방어 체계를 수립한다",
+      "단일 통화를 도입한다"
+    ],
+    ans: 1,
+    exp: "솅겐 협약은 서명국 간의 국경 통제를 폐지하여 사람들이 여권 검사 없이 자유롭게 이동할 수 있도록 한 협약입니다."
+  },
+  {
+    cat: "🇪🇺 유럽 연합",
+    q: "2020년 유럽 연합(EU)에서 탈퇴한 국가는 어디인가요?",
+    opts: ["프랑스", "노르웨이", "스위스", "영국"],
+    ans: 3,
+    exp: "영국은 2016년 국민 투표 결과 EU 탈퇴(Brexit)를 결정하였고, 협상을 거쳐 2020년 1월 31일 공식 탈퇴하였습니다."
+  },
+  {
+    cat: "🇪🇺 유럽 연합",
+    q: "EU의 의회·주요 기관이 위치한 벨기에의 도시는?",
+    opts: ["암스테르담", "브뤼셀", "제네바", "스트라스부르"],
+    ans: 1,
+    exp: "벨기에의 수도 브뤼셀(Brussels)에 EU 집행위원회·이사회 등 주요 기관이 위치하여 사실상 EU의 수도 역할을 합니다."
+  },
+  // ── 6. 환경 문제 ──
+  {
+    cat: "♻️ 환경 문제",
+    q: "탄소 순 배출량을 0으로 만드는 목표를 가리키는 개념은?",
+    opts: ["그린 뉴딜", "탄소 세금", "탄소 중립(Net Zero)", "파리 협정"],
+    ans: 2,
+    exp: "탄소 중립(Net Zero)은 이산화탄소 배출량과 흡수량을 같게 만들어 실질적인 탄소 순 배출을 0으로 줄이는 목표입니다."
+  },
+  {
+    cat: "♻️ 환경 문제",
+    q: "EU가 탄소 중립 달성을 위해 중간 목표를 설정한 두 연도는?",
+    opts: ["2025년과 2040년", "2030년과 2050년", "2035년과 2060년", "2028년과 2045년"],
+    ans: 1,
+    exp: "EU는 2030년까지 1990년 대비 온실가스 55% 이상 감축하고, 2050년까지 탄소 중립을 달성하는 것을 목표로 합니다."
+  }
+];
+
+// 상태
+let questions = [];
+let current = 0;
+let score = 0;
+let wrongList = [];
+let answered = false;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  questions = shuffle(QUESTIONS);
+  current = 0; score = 0; wrongList = [];
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('score-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  showQuestion();
+}
+
+function showQuestion() {
+  answered = false;
+  const q = questions[current];
+  const total = questions.length;
+
+  // 진행바
+  document.getElementById('prog-fill').style.width = ((current / total) * 100) + '%';
+  document.getElementById('prog-label').textContent = `${current + 1} / ${total}`;
+
+  // 문제
+  document.getElementById('q-badge').textContent = q.cat;
+  document.getElementById('q-num').textContent = `문제 ${current + 1}`;
+  document.getElementById('q-text').textContent = q.q;
+
+  // 힌트
+  const hintEl = document.getElementById('q-hint');
+  if (q.hint) {
+    hintEl.style.display = 'flex';
+    document.getElementById('q-hint-text').textContent = q.hint;
+  } else {
+    hintEl.style.display = 'none';
+  }
+
+  // 선택지 (섞은 인덱스 관리)
+  const labels = ['①', '②', '③', '④'];
+  const indices = shuffle([0, 1, 2, 3]);
+  const optWrap = document.getElementById('options');
+  optWrap.innerHTML = '';
+  indices.forEach((origIdx, pos) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-label">${labels[pos]}</span><span>${q.opts[origIdx]}</span>`;
+    btn.dataset.orig = origIdx;
+    btn.onclick = () => selectAnswer(btn, origIdx === q.ans, q);
+    optWrap.appendChild(btn);
+  });
+
+  // 피드백·다음 버튼 초기화
+  const fb = document.getElementById('feedback');
+  fb.style.display = 'none';
+  fb.className = 'feedback';
+  const btnNext = document.getElementById('btn-next');
+  btnNext.style.display = 'none';
+  btnNext.textContent = current + 1 < total ? '다음 문제 →' : '결과 보기 🎉';
+}
+
+function selectAnswer(clickedBtn, isCorrect, q) {
+  if (answered) return;
+  answered = true;
+
+  // 모든 버튼 비활성화
+  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('feedback');
+  if (isCorrect) {
+    clickedBtn.classList.add('correct');
+    score++;
+    fb.className = 'feedback correct';
+    fb.innerHTML = `<span class="emoji">🎉</span> <strong>정답이에요!</strong><br>${q.exp}`;
+  } else {
+    clickedBtn.classList.add('wrong');
+    // 정답 표시
+    document.querySelectorAll('.option-btn').forEach(b => {
+      if (parseInt(b.dataset.orig) === q.ans) b.classList.add('reveal');
+    });
+    fb.className = 'feedback wrong';
+    const correctText = q.opts[q.ans];
+    fb.innerHTML = `<span class="emoji">😅</span> <strong>아쉽네요!</strong> 정답은 <strong>"${correctText}"</strong>이에요.<br>${q.exp}`;
+    wrongList.push({ q, myAns: clickedBtn.querySelector('span:last-child').textContent });
+  }
+  fb.style.display = 'block';
+  document.getElementById('btn-next').style.display = 'block';
+}
+
+function nextQuestion() {
+  current++;
+  if (current < questions.length) {
+    showQuestion();
+  } else {
+    showScore();
+  }
+}
+
+function showScore() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  const screen = document.getElementById('score-screen');
+  screen.style.display = 'block';
+
+  const total = questions.length;
+  const pct = Math.round((score / total) * 100);
+
+  const circle = document.getElementById('score-circle');
+  circle.textContent = '';
+  const fracEl = document.createElement('div');
+  fracEl.id = 'score-fraction';
+  fracEl.textContent = `${score}/${total}`;
+  const spanEl = document.createElement('span');
+  spanEl.textContent = `${pct}점`;
+  circle.appendChild(fracEl);
+  circle.appendChild(spanEl);
+
+  // 색상
+  if (pct >= 90) circle.style.background = 'linear-gradient(135deg,#2e9e5b,#5ecb8a)';
+  else if (pct >= 70) circle.style.background = 'linear-gradient(135deg,#1a6bb5,#5ba0e0)';
+  else if (pct >= 50) circle.style.background = 'linear-gradient(135deg,#f5a623,#f7c56a)';
+  else circle.style.background = 'linear-gradient(135deg,#d63636,#f07070)';
+
+  const msgs = [
+    { min: 90, msg: "완벽해요! 유럽 박사 🎓", sub: "거의 모든 개념을 완벽히 이해하고 있어요!" },
+    { min: 70, msg: "잘했어요! 🌟", sub: "핵심 개념을 잘 파악하고 있어요. 조금만 더 복습해볼까요?" },
+    { min: 50, msg: "아직 더 공부가 필요해요 📚", sub: "틀린 문제 위주로 다시 복습해 보세요!" },
+    { min: 0,  msg: "처음부터 다시 시작해봐요 💪", sub: "교과서를 다시 읽고 재도전해 보세요!" }
+  ];
+  const m = msgs.find(x => pct >= x.min);
+  document.getElementById('score-msg').textContent = m.msg;
+  document.getElementById('score-sub').textContent = m.sub;
+
+  const btnReview = document.getElementById('btn-review');
+  if (wrongList.length > 0) btnReview.style.display = 'block';
+  else btnReview.style.display = 'none';
+
+  document.getElementById('review-section').style.display = 'none';
+}
+
+function showReview() {
+  const section = document.getElementById('review-section');
+  if (section.style.display === 'block') { section.style.display = 'none'; return; }
+
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  wrongList.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'review-item';
+    div.style.animationDelay = (idx * 0.07) + 's';
+    div.innerHTML = `
+      <div class="r-num">❌ 오답 ${idx + 1} · ${item.q.cat}</div>
+      <div class="r-q">${item.q.q}</div>
+      <div class="r-my">내 답: ${item.myAns}</div>
+      <div class="r-ans">✅ 정답: ${item.q.opts[item.q.ans]}</div>
+      <div class="r-exp">💡 ${item.q.exp}</div>
+    `;
+    list.appendChild(div);
+  });
+  section.style.display = 'block';
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function retryQuiz() {
+  document.getElementById('score-screen').style.display = 'none';
+  document.getElementById('review-section').style.display = 'none';
+  startQuiz();
+}
+</script>
+</body>
+</html>
