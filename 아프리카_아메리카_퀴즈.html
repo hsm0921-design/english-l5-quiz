@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌍 아프리카 · 아메리카 개념 퀴즈</title>
+<style>
+  :root {
+    --blue: #1a6bb5;
+    --blue-light: #e8f0fa;
+    --green: #2e9e5b;
+    --green-light: #e6f6ec;
+    --red: #d63636;
+    --red-light: #fdeaea;
+    --yellow: #f5a623;
+    --yellow-light: #fff8e6;
+    --gray: #6c757d;
+    --gray-light: #f4f5f7;
+    --dark: #1e2433;
+    --white: #ffffff;
+    --radius: 14px;
+    --shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+    background: linear-gradient(135deg, #5d3a1a 0%, #b05d00 50%, #d4820a 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  #app {
+    width: 100%;
+    max-width: 720px;
+  }
+
+  .header {
+    text-align: center;
+    color: white;
+    margin-bottom: 24px;
+  }
+  .header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; }
+  .header p  { font-size: 1rem; opacity: 0.85; margin-top: 6px; }
+
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px;
+    margin-bottom: 16px;
+    animation: fadeUp 0.35s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 10px;
+    background: #dde3ee;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #b05d00, #f5a623);
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-label { font-size: 0.85rem; color: var(--gray); white-space: nowrap; font-weight: 600; }
+
+  .badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    background: #fff3e0;
+    color: #b05d00;
+    letter-spacing: 0.3px;
+  }
+
+  .question-num { font-size: 0.82rem; color: var(--gray); margin-bottom: 6px; }
+  .question-text {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--dark);
+    line-height: 1.55;
+    margin-bottom: 20px;
+  }
+  .question-hint {
+    font-size: 0.88rem;
+    color: var(--gray);
+    background: var(--gray-light);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border: 2.5px solid #dde3ee;
+    border-radius: 10px;
+    background: var(--white);
+    cursor: pointer;
+    font-size: 0.97rem;
+    font-family: inherit;
+    color: var(--dark);
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: #b05d00;
+    background: #fff3e0;
+    transform: translateX(3px);
+  }
+  .option-btn .opt-label {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: #edf0f7;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 0.88rem;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+  }
+  .option-btn.correct {
+    border-color: var(--green);
+    background: var(--green-light);
+    animation: correctPop 0.35s ease both;
+  }
+  .option-btn.correct .opt-label { background: var(--green); color: white; }
+  .option-btn.wrong {
+    border-color: var(--red);
+    background: var(--red-light);
+    animation: shake 0.4s ease both;
+  }
+  .option-btn.wrong .opt-label { background: var(--red); color: white; }
+  .option-btn.reveal {
+    border-color: var(--green);
+    background: var(--green-light);
+    opacity: 0.85;
+  }
+  .option-btn.reveal .opt-label { background: var(--green); color: white; }
+  .option-btn:disabled { cursor: default; }
+
+  @keyframes correctPop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.04); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-8px); }
+    40%     { transform: translateX(8px); }
+    60%     { transform: translateX(-5px); }
+    80%     { transform: translateX(5px); }
+  }
+
+  .feedback {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 0.93rem;
+    line-height: 1.55;
+    display: none;
+    animation: fadeUp 0.3s ease both;
+  }
+  .feedback.correct { background: var(--green-light); border-left: 4px solid var(--green); color: #1a5c35; }
+  .feedback.wrong   { background: var(--red-light);   border-left: 4px solid var(--red);   color: #7a1c1c; }
+  .feedback .emoji  { font-size: 1.3rem; margin-right: 4px; }
+  .feedback strong  { font-weight: 800; }
+
+  .btn-next {
+    display: none;
+    margin-top: 18px;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    background: linear-gradient(90deg, #b05d00, #f5a623);
+    color: white;
+    letter-spacing: 0.3px;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn-next:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  #score-screen { text-align: center; }
+  .score-circle {
+    width: 130px; height: 130px;
+    border-radius: 50%;
+    margin: 16px auto 20px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-weight: 900;
+    font-size: 2.4rem;
+    color: white;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    animation: popIn 0.5s cubic-bezier(.175,.885,.32,1.275) both;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.4); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+  .score-circle span { font-size: 0.95rem; font-weight: 600; opacity: 0.85; }
+  .score-msg { font-size: 1.1rem; color: var(--dark); margin-bottom: 6px; font-weight: 700; }
+  .score-sub { font-size: 0.9rem; color: var(--gray); margin-bottom: 24px; }
+
+  .review-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .review-item {
+    border: 2px solid #f0d0d0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    background: #fff9f9;
+    text-align: left;
+    animation: fadeUp 0.3s ease both;
+  }
+  .review-item .r-num   { font-size: 0.78rem; color: var(--red); font-weight: 700; margin-bottom: 4px; }
+  .review-item .r-q     { font-size: 0.95rem; color: var(--dark); font-weight: 700; margin-bottom: 8px; line-height: 1.45; }
+  .review-item .r-my    { font-size: 0.88rem; color: var(--red); margin-bottom: 4px; }
+  .review-item .r-ans   { font-size: 0.88rem; color: var(--green); font-weight: 700; margin-bottom: 6px; }
+  .review-item .r-exp   { font-size: 0.87rem; color: #444; background: #f5f5f5; border-radius: 6px; padding: 8px 10px; line-height: 1.5; }
+
+  .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+  .btn-retry, .btn-review {
+    flex: 1;
+    padding: 13px;
+    border: none; border-radius: 10px;
+    font-size: 0.95rem; font-family: inherit; font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn-retry  { background: linear-gradient(90deg, #b05d00, #f5a623); color: white; }
+  .btn-review { background: var(--yellow-light); color: #7a5000; border: 2px solid var(--yellow); }
+  .btn-retry:hover, .btn-review:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  #start-screen { text-align: center; }
+  #start-screen h2 { font-size: 1.3rem; font-weight: 800; color: var(--dark); margin-bottom: 10px; }
+  #start-screen p  { font-size: 0.93rem; color: var(--gray); line-height: 1.6; margin-bottom: 20px; }
+  .topics { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 22px; }
+  .topic-chip {
+    padding: 6px 14px; border-radius: 99px;
+    font-size: 0.83rem; font-weight: 600;
+    background: #fff3e0; color: #b05d00;
+  }
+  .btn-start {
+    display: block; width: 100%;
+    padding: 16px; border: none; border-radius: 10px;
+    font-size: 1.05rem; font-family: inherit; font-weight: 800;
+    cursor: pointer;
+    background: linear-gradient(90deg, #b05d00, #f5a623);
+    color: white;
+    letter-spacing: 0.5px;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn-start:hover { opacity: 0.9; transform: translateY(-2px); }
+
+  @media (max-width: 500px) {
+    .header h1 { font-size: 1.5rem; }
+    .card { padding: 20px; }
+    .question-text { font-size: 1.05rem; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <h1>🌍 아프리카 · 아메리카 퀴즈</h1>
+    <p>미래엔 사회1 · 4단원(아프리카) &amp; 5단원(아메리카)</p>
+  </div>
+
+  <!-- 시작 화면 -->
+  <div class="card" id="start-screen">
+    <h2>퀴즈를 시작해볼까요? 🚀</h2>
+    <p>아프리카와 아메리카의 자연환경, 기후, 문화, 경제에 관한<br>
+       <strong>총 30문제</strong>를 풀어봅니다.<br>
+       틀린 문제는 마지막에 <strong>오답 노트</strong>로 다시 확인할 수 있어요!</p>
+    <div class="topics">
+      <span class="topic-chip">🌿 아프리카 자연환경</span>
+      <span class="topic-chip">☀️ 아프리카 기후</span>
+      <span class="topic-chip">🏛️ 아프리카 인문환경</span>
+      <span class="topic-chip">🏔️ 아메리카 자연환경</span>
+      <span class="topic-chip">🌎 앵글로·라틴 아메리카</span>
+      <span class="topic-chip">🌾 아메리카 경제·문화</span>
+    </div>
+    <button class="btn-start" onclick="startQuiz()">퀴즈 시작하기 ▶</button>
+  </div>
+
+  <!-- 퀴즈 화면 -->
+  <div class="card" id="quiz-screen" style="display:none">
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+      <div class="progress-label" id="prog-label"></div>
+    </div>
+    <div class="badge" id="q-badge"></div>
+    <div class="question-num" id="q-num"></div>
+    <div class="question-text" id="q-text"></div>
+    <div class="question-hint" id="q-hint" style="display:none">💡 <span id="q-hint-text"></span></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">다음 문제 →</button>
+  </div>
+
+  <!-- 결과 화면 -->
+  <div class="card" id="score-screen" style="display:none">
+    <div class="score-circle" id="score-circle">
+      <span id="score-fraction"></span>
+      <span>점수</span>
+    </div>
+    <div class="score-msg" id="score-msg"></div>
+    <div class="score-sub" id="score-sub"></div>
+    <div class="btn-group">
+      <button class="btn-retry" onclick="retryQuiz()">🔄 다시 풀기</button>
+      <button class="btn-review" id="btn-review" onclick="showReview()" style="display:none">📒 오답 노트 보기</button>
+    </div>
+    <div id="review-section" style="display:none; margin-top:28px;">
+      <div class="review-title">📒 오답 노트</div>
+      <div id="review-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+
+  // ── 4단원: 아프리카 자연환경 (1~5) ──
+  {
+    cat: "🌿 아프리카 자연환경",
+    q: "세계에서 가장 넓은 사막으로, 아프리카 북부를 가로질러 대서양에서 홍해까지 뻗어 있는 사막은?",
+    opts: ["나미브 사막", "칼라하리 사막", "사하라 사막", "아라비아 사막"],
+    ans: 2,
+    exp: "사하라 사막은 면적 약 900만 km²로 세계 최대의 사막이며, 아프리카 대륙 북부를 동서로 가로지르고 있습니다."
+  },
+  {
+    cat: "🌿 아프리카 자연환경",
+    q: "아프리카 동부를 남북으로 길게 가로지르며, 지각이 갈라지면서 만들어진 지형은?",
+    opts: ["콩고 분지", "동아프리카 지구대", "아틀라스 산맥", "드라켄즈버그 산맥"],
+    ans: 1,
+    exp: "동아프리카 지구대(열곡대)는 지각판이 갈라지면서 형성된 거대한 골짜기로, 빅토리아 호수·탕가니카 호수 등 대형 호수들이 위치합니다."
+  },
+  {
+    cat: "🌿 아프리카 자연환경",
+    q: "아프리카에서 가장 긴 강으로, 이집트를 흘러 지중해로 들어가는 강은?",
+    opts: ["콩고강", "잠베지강", "나이저강", "나일강"],
+    ans: 3,
+    exp: "나일강(약 6,650km)은 세계 최장 하천 중 하나로, 수단과 이집트를 흘러 지중해로 흘러들며, 고대 이집트 문명의 젖줄이었습니다."
+  },
+  {
+    cat: "🌿 아프리카 자연환경",
+    q: "아프리카 대륙의 전반적인 지형 특징으로 옳은 것은?",
+    opts: [
+      "험준한 고산지대가 전체 면적의 절반 이상을 차지한다",
+      "대부분 평균 고도가 높은 고원 지형이 넓게 펼쳐져 있다",
+      "저지대 평야가 대부분을 차지한다",
+      "내륙에 대규모 바다(내해)가 형성되어 있다"
+    ],
+    ans: 1,
+    exp: "아프리카는 대륙 전체가 평균 고도가 높은 고원 지형으로 이루어져 있어 '고원의 대륙'이라고 불리기도 합니다."
+  },
+  {
+    cat: "🌿 아프리카 자연환경",
+    q: "아프리카 대륙에서 최고봉이 있는 산은?",
+    opts: ["케냐산", "킬리만자로산", "에티오피아 고원", "드라켄즈버그산"],
+    ans: 1,
+    exp: "킬리만자로산(5,895m)은 탄자니아에 위치한 아프리카 최고봉으로, 적도 부근에 있음에도 정상에는 만년설이 쌓여 있습니다."
+  },
+
+  // ── 4단원: 아프리카 기후 (6~10) ──
+  {
+    cat: "☀️ 아프리카 기후",
+    q: "아프리카 적도 부근(콩고 분지 등)에 나타나며, 연중 고온 다습하고 강수량이 많은 기후는?",
+    opts: ["사바나 기후", "건조 기후", "열대 우림 기후", "지중해성 기후"],
+    ans: 2,
+    exp: "열대 우림 기후는 적도 부근에 분포하며, 연평균 기온 25°C 이상, 연강수량 2,000mm 이상으로 밀림(정글)이 발달합니다."
+  },
+  {
+    cat: "☀️ 아프리카 기후",
+    q: "열대 우림 기후 주변에 분포하며, 건기와 우기가 뚜렷하게 나타나고 초원과 관목림이 발달하는 기후는?",
+    opts: ["지중해성 기후", "사바나 기후", "스텝 기후", "냉대 기후"],
+    ans: 1,
+    exp: "사바나 기후는 열대 우림 기후 주변에 분포하며, 건기와 우기가 뚜렷하여 키 큰 풀과 드문드문 나무가 자라는 초원(사바나)이 나타납니다."
+  },
+  {
+    cat: "☀️ 아프리카 기후",
+    q: "아프리카 북부 지중해 연안(알제리·모로코·튀니지 등)에 나타나는 기후로, 여름은 덥고 건조하며 겨울은 온화하고 비가 오는 기후는?",
+    opts: ["열대 우림 기후", "사바나 기후", "건조 기후", "지중해성 기후"],
+    ans: 3,
+    exp: "지중해성 기후는 지중해 연안에 분포하며, 여름은 아열대 고압대 영향으로 덥고 건조하고, 겨울은 편서풍 영향으로 온화하고 비가 옵니다."
+  },
+  {
+    cat: "☀️ 아프리카 기후",
+    q: "사하라 사막 남쪽의 반건조 지역으로, 사막화가 심각하게 진행되고 있는 지역의 이름은?",
+    opts: ["사헬 지역", "카루 지역", "마그레브 지역", "기니만 지역"],
+    ans: 0,
+    exp: "사헬 지역은 사하라 사막 남쪽의 반건조 지대로, 과도한 방목과 경작, 기후 변화로 인해 사막화가 급속히 진행되어 주민들이 생존 위기를 겪고 있습니다."
+  },
+  {
+    cat: "☀️ 아프리카 기후",
+    q: "아프리카의 사막화 원인으로 옳지 않은 것은?",
+    opts: [
+      "과도한 방목으로 식생이 파괴된다",
+      "무분별한 경작으로 토양이 황폐해진다",
+      "강수량이 점점 증가하여 홍수가 잦아진다",
+      "기후 변화로 강수량이 감소하고 가뭄이 심해진다"
+    ],
+    ans: 2,
+    exp: "사막화는 강수량 감소, 과도한 방목, 무분별한 경작이 복합적으로 작용하여 발생합니다. 강수량 증가는 사막화의 원인이 아닙니다."
+  },
+
+  // ── 4단원: 아프리카 인문환경 (11~15) ──
+  {
+    cat: "🏛️ 아프리카 인문환경",
+    q: "유럽 열강이 아프리카를 식민지화하면서 민족·부족 분포와 관계없이 직선으로 국경선을 그었다. 이것이 오늘날까지 아프리카에서 발생시키는 주요 문제는?",
+    opts: ["도시화 문제", "환경 오염 문제", "민족·부족 갈등과 분쟁", "인구 감소 문제"],
+    ans: 2,
+    exp: "유럽 열강이 베를린 회의(1884~1885)에서 자의적으로 직선 국경을 그은 결과, 같은 민족이 여러 나라에 나뉘거나 적대적인 부족이 한 나라에 묶여 오늘날까지 갈등과 내전이 이어지고 있습니다."
+  },
+  {
+    cat: "🏛️ 아프리카 인문환경",
+    q: "아프리카 사하라 이남에서 가장 많은 사람이 믿는 종교는?",
+    opts: ["이슬람교", "힌두교", "크리스트교", "불교"],
+    ans: 2,
+    exp: "사하라 이남 아프리카에서는 크리스트교가 가장 많이 믿어지며, 북아프리카에서는 이슬람교가 주요 종교입니다."
+  },
+  {
+    cat: "🏛️ 아프리카 인문환경",
+    q: "아프리카가 천연자원이 풍부함에도 빈곤을 벗어나지 못하는 현상을 가리키는 말은?",
+    opts: ["기후 역설", "자원의 저주", "식민지 잔재", "부족 갈등"],
+    ans: 1,
+    exp: "자원의 저주(Resource curse)란 천연자원이 풍부한 나라가 오히려 경제 성장이 더디고 부패·분쟁이 심해지는 현상으로, 아프리카 일부 국가에서 나타납니다."
+  },
+  {
+    cat: "🏛️ 아프리카 인문환경",
+    q: "아프리카에서 사용되는 언어 수는 대략 몇 개 정도인가?",
+    opts: ["약 50개", "약 200개", "약 2,000개 이상", "약 500개"],
+    ans: 2,
+    exp: "아프리카에는 약 2,000개 이상의 언어가 사용되고 있어 세계에서 가장 언어가 다양한 대륙으로 꼽힙니다. 이는 수천 년에 걸친 다양한 민족·부족의 역사 때문입니다."
+  },
+  {
+    cat: "🏛️ 아프리카 인문환경",
+    q: "아프리카 국가들이 경제 협력과 분쟁 해결을 위해 결성한 지역 연합 기구는?",
+    opts: ["아세안(ASEAN)", "아프리카 연합(AU)", "아랍 연맹(AL)", "유럽 연합(EU)"],
+    ans: 1,
+    exp: "아프리카 연합(AU, African Union)은 2002년 출범하였으며, 아프리카 55개국이 참여하여 경제 통합, 분쟁 해결, 인권 증진 등을 추진합니다."
+  },
+
+  // ── 5단원: 아메리카 자연환경 (16~20) ──
+  {
+    cat: "🏔️ 아메리카 자연환경",
+    q: "북아메리카 대륙의 서쪽을 따라 남북으로 뻗어 있는 험준한 산맥은?",
+    opts: ["애팔래치아 산맥", "안데스 산맥", "로키 산맥", "시에라마드레 산맥"],
+    ans: 2,
+    exp: "로키 산맥은 캐나다에서 멕시코까지 북아메리카 서쪽을 남북으로 뻗은 대산맥으로, 북아메리카의 지붕이라 불립니다."
+  },
+  {
+    cat: "🏔️ 아메리카 자연환경",
+    q: "남아메리카 서쪽 해안을 따라 남북으로 뻗어 있으며, 세계에서 가장 긴 산맥은?",
+    opts: ["로키 산맥", "히말라야 산맥", "안데스 산맥", "알프스 산맥"],
+    ans: 2,
+    exp: "안데스 산맥은 길이 약 7,000km로 세계 최장 산맥이며, 콜롬비아·에콰도르·페루·볼리비아·칠레·아르헨티나 등 남아메리카 서쪽 해안을 따라 뻗어 있습니다."
+  },
+  {
+    cat: "🏔️ 아메리카 자연환경",
+    q: "북아메리카 동부를 따라 남북으로 뻗어 있는 비교적 오래된 산맥으로, 로키 산맥보다 고도가 낮은 산맥은?",
+    opts: ["시에라네바다 산맥", "애팔래치아 산맥", "캐스케이드 산맥", "블루리지 산맥"],
+    ans: 1,
+    exp: "애팔래치아 산맥은 북아메리카 동부에 위치한 오래된 산맥으로, 오랜 침식으로 고도가 낮습니다. 한때 석탄 산업의 중심지였습니다."
+  },
+  {
+    cat: "🏔️ 아메리카 자연환경",
+    q: "세계 최대 열대 우림이 분포하는 남아메리카의 강 유역은?",
+    opts: ["오리노코강 유역", "라플라타강 유역", "파라과이강 유역", "아마존강 유역"],
+    ans: 3,
+    exp: "아마존강 유역은 브라질을 중심으로 남아메리카 북부에 펼쳐진 세계 최대 열대 우림 지역으로, 지구 산소의 20%를 생산한다고 알려져 있습니다."
+  },
+  {
+    cat: "🏔️ 아메리카 자연환경",
+    q: "북아메리카 중앙부를 흘러 멕시코만으로 흘러드는 대하천으로, '아버지의 강'이라 불리는 강은?",
+    opts: ["콜로라도강", "미시시피강", "허드슨강", "리오그란데강"],
+    ans: 1,
+    exp: "미시시피강은 미국 중앙부를 남북으로 흘러 멕시코만에 이르는 북아메리카 대표 하천으로, 미국 내륙 수운과 농업에 중요한 역할을 합니다."
+  },
+
+  // ── 5단원: 앵글로아메리카 vs 라틴아메리카 (21~25) ──
+  {
+    cat: "🌎 앵글로·라틴 아메리카",
+    q: "영어를 공용어로 사용하고 영국·북유럽계 문화 전통을 가진 아메리카 지역을 가리키는 명칭은?",
+    opts: ["라틴 아메리카", "앵글로 아메리카", "히스패닉 아메리카", "크리올 아메리카"],
+    ans: 1,
+    exp: "앵글로 아메리카는 미국·캐나다를 포함하는 지역으로, 영어를 공용어로 사용하며 영국계 앵글로색슨 문화의 영향을 크게 받았습니다."
+  },
+  {
+    cat: "🌎 앵글로·라틴 아메리카",
+    q: "에스파냐어·포르투갈어를 주로 사용하고 가톨릭교를 믿으며, 원주민·유럽인·아프리카인의 혼합 문화를 가진 지역은?",
+    opts: ["앵글로 아메리카", "라틴 아메리카", "북아메리카", "카리브 아메리카"],
+    ans: 1,
+    exp: "라틴 아메리카는 멕시코·중앙아메리카·남아메리카 대부분을 포함하며, 에스파냐어(브라질은 포르투갈어)를 사용하고 가톨릭교를 주로 믿습니다."
+  },
+  {
+    cat: "🌎 앵글로·라틴 아메리카",
+    q: "라틴 아메리카에서 인종 간 혼혈로 태어난 사람을 가리키는 말은?",
+    opts: ["크리올", "메스티소", "물라토", "잉카"],
+    ans: 1,
+    exp: "메스티소(Mestizo)는 유럽계(주로 에스파냐계)와 아메리카 원주민 사이에서 태어난 혼혈인을 가리킵니다. 라틴 아메리카 인구의 큰 비중을 차지합니다."
+  },
+  {
+    cat: "🌎 앵글로·라틴 아메리카",
+    q: "브라질이 공용어로 사용하는 언어는?",
+    opts: ["에스파냐어", "영어", "포르투갈어", "프랑스어"],
+    ans: 2,
+    exp: "브라질은 16세기 포르투갈의 식민지였기 때문에 포르투갈어를 공용어로 사용합니다. 남아메리카의 다른 나라 대부분은 에스파냐어를 사용합니다."
+  },
+  {
+    cat: "🌎 앵글로·라틴 아메리카",
+    q: "아메리카 원주민 문명 중 오늘날 페루·볼리비아 일대에서 번성하였으며, 마추픽추로 유명한 문명은?",
+    opts: ["마야 문명", "아스텍 문명", "잉카 문명", "올멕 문명"],
+    ans: 2,
+    exp: "잉카 문명은 15~16세기 안데스 산맥 일대에서 번성한 제국으로, 마추픽추 등의 거대한 석조 건물을 남겼습니다. 에스파냐 정복 이후 멸망하였습니다."
+  },
+
+  // ── 5단원: 아메리카 경제·문화 (26~30) ──
+  {
+    cat: "🌾 아메리카 경제·문화",
+    q: "미국 중부의 대평원(프레리)에서 대규모로 재배되며, 세계 최대 수출량을 자랑하는 곡물은?",
+    opts: ["쌀", "밀·옥수수", "커피", "사탕수수"],
+    ans: 1,
+    exp: "미국 중부 대평원에서는 밀과 옥수수를 기업적 대규모 농업으로 생산하며, 미국은 세계 최대 곡물 수출국 중 하나입니다."
+  },
+  {
+    cat: "🌾 아메리카 경제·문화",
+    q: "브라질 등 라틴 아메리카에서 주로 생산되며, 적도 부근의 고온 다습한 기후에서 잘 자라는 음료 원료 작물은?",
+    opts: ["밀", "목화", "커피", "감자"],
+    ans: 2,
+    exp: "브라질은 세계 최대 커피 생산국으로, 고온 다습한 기후와 고원 지형이 커피 재배에 적합합니다. 커피는 라틴 아메리카의 주요 수출품 중 하나입니다."
+  },
+  {
+    cat: "🌾 아메리카 경제·문화",
+    q: "라틴 아메리카의 대도시에서 빈민들이 도시 외곽이나 구릉지에 형성한 무허가 불량 주거 지역을 브라질에서 부르는 말은?",
+    opts: ["바리오", "파벨라", "빌라미세리아", "칸투"],
+    ans: 1,
+    exp: "파벨라(Favela)는 브라질 도시 외곽에 형성된 빈민 주거 지역을 가리키는 말로, 급격한 도시화와 빈부 격차의 결과로 나타납니다."
+  },
+  {
+    cat: "🌾 아메리카 경제·문화",
+    q: "미국·캐나다·멕시코 3국이 체결한 자유 무역 협정으로, 2020년 개정된 협정의 명칭은?",
+    opts: ["ASEAN", "USMCA(CUSMA)", "EU", "MERCOSUR"],
+    ans: 1,
+    exp: "미국·캐나다·멕시코 3국의 자유 무역 협정은 기존 NAFTA를 개정하여 2020년 USMCA(미국·멕시코·캐나다 협정)로 발효되었습니다."
+  },
+  {
+    cat: "🌾 아메리카 경제·문화",
+    q: "아마존 열대 우림이 급격히 파괴되는 주요 원인으로 옳지 않은 것은?",
+    opts: [
+      "농경지와 목장 확보를 위한 산림 벌채",
+      "도로·댐 건설로 인한 개발",
+      "아마존 유역 인구가 줄어들고 있기 때문에",
+      "불법 광산 개발"
+    ],
+    ans: 2,
+    exp: "아마존 열대 우림 파괴의 주요 원인은 농경지·목장 확보를 위한 벌채, 도로·댐 건설, 불법 광산 개발 등입니다. 인구 감소는 파괴의 원인이 아닙니다."
+  }
+
+];
+
+// 상태
+let questions = [];
+let current = 0;
+let score = 0;
+let wrongList = [];
+let answered = false;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz() {
+  questions = shuffle(QUESTIONS);
+  current = 0; score = 0; wrongList = [];
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('score-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  showQuestion();
+}
+
+function showQuestion() {
+  answered = false;
+  const q = questions[current];
+  const total = questions.length;
+
+  document.getElementById('prog-fill').style.width = ((current / total) * 100) + '%';
+  document.getElementById('prog-label').textContent = `${current + 1} / ${total}`;
+
+  document.getElementById('q-badge').textContent = q.cat;
+  document.getElementById('q-num').textContent = `문제 ${current + 1}`;
+  document.getElementById('q-text').textContent = q.q;
+
+  const hintEl = document.getElementById('q-hint');
+  if (q.hint) {
+    hintEl.style.display = 'flex';
+    document.getElementById('q-hint-text').textContent = q.hint;
+  } else {
+    hintEl.style.display = 'none';
+  }
+
+  const labels = ['①', '②', '③', '④'];
+  const indices = shuffle([0, 1, 2, 3]);
+  const optWrap = document.getElementById('options');
+  optWrap.innerHTML = '';
+  indices.forEach((origIdx, pos) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-label">${labels[pos]}</span><span>${q.opts[origIdx]}</span>`;
+    btn.dataset.orig = origIdx;
+    btn.onclick = () => selectAnswer(btn, origIdx === q.ans, q);
+    optWrap.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.style.display = 'none';
+  fb.className = 'feedback';
+  const btnNext = document.getElementById('btn-next');
+  btnNext.style.display = 'none';
+  btnNext.textContent = current + 1 < total ? '다음 문제 →' : '결과 보기 🎉';
+}
+
+function selectAnswer(clickedBtn, isCorrect, q) {
+  if (answered) return;
+  answered = true;
+
+  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('feedback');
+  if (isCorrect) {
+    clickedBtn.classList.add('correct');
+    score++;
+    fb.className = 'feedback correct';
+    fb.innerHTML = `<span class="emoji">🎉</span> <strong>정답이에요!</strong><br>${q.exp}`;
+  } else {
+    clickedBtn.classList.add('wrong');
+    document.querySelectorAll('.option-btn').forEach(b => {
+      if (parseInt(b.dataset.orig) === q.ans) b.classList.add('reveal');
+    });
+    fb.className = 'feedback wrong';
+    const correctText = q.opts[q.ans];
+    fb.innerHTML = `<span class="emoji">😅</span> <strong>아쉽네요!</strong> 정답은 <strong>"${correctText}"</strong>이에요.<br>${q.exp}`;
+    wrongList.push({ q, myAns: clickedBtn.querySelector('span:last-child').textContent });
+  }
+  fb.style.display = 'block';
+  document.getElementById('btn-next').style.display = 'block';
+}
+
+function nextQuestion() {
+  current++;
+  if (current < questions.length) {
+    showQuestion();
+  } else {
+    showScore();
+  }
+}
+
+function showScore() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  const screen = document.getElementById('score-screen');
+  screen.style.display = 'block';
+
+  const total = questions.length;
+  const pct = Math.round((score / total) * 100);
+
+  const circle = document.getElementById('score-circle');
+  circle.textContent = '';
+  const fracEl = document.createElement('div');
+  fracEl.id = 'score-fraction';
+  fracEl.textContent = `${score}/${total}`;
+  const spanEl = document.createElement('span');
+  spanEl.textContent = `${pct}점`;
+  circle.appendChild(fracEl);
+  circle.appendChild(spanEl);
+
+  if (pct >= 90) circle.style.background = 'linear-gradient(135deg,#2e9e5b,#5ecb8a)';
+  else if (pct >= 70) circle.style.background = 'linear-gradient(135deg,#b05d00,#f5a623)';
+  else if (pct >= 50) circle.style.background = 'linear-gradient(135deg,#f5a623,#f7c56a)';
+  else circle.style.background = 'linear-gradient(135deg,#d63636,#f07070)';
+
+  const msgs = [
+    { min: 90, msg: "완벽해요! 지리 박사 🎓", sub: "아프리카와 아메리카 개념을 완벽히 이해하고 있어요!" },
+    { min: 70, msg: "잘했어요! 🌟", sub: "핵심 개념을 잘 파악하고 있어요. 조금만 더 복습해볼까요?" },
+    { min: 50, msg: "아직 더 공부가 필요해요 📚", sub: "틀린 문제 위주로 다시 복습해 보세요!" },
+    { min: 0,  msg: "처음부터 다시 시작해봐요 💪", sub: "교과서를 다시 읽고 재도전해 보세요!" }
+  ];
+  const m = msgs.find(x => pct >= x.min);
+  document.getElementById('score-msg').textContent = m.msg;
+  document.getElementById('score-sub').textContent = m.sub;
+
+  const btnReview = document.getElementById('btn-review');
+  if (wrongList.length > 0) btnReview.style.display = 'block';
+  else btnReview.style.display = 'none';
+
+  document.getElementById('review-section').style.display = 'none';
+}
+
+function showReview() {
+  const section = document.getElementById('review-section');
+  if (section.style.display === 'block') { section.style.display = 'none'; return; }
+
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  wrongList.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'review-item';
+    div.style.animationDelay = (idx * 0.07) + 's';
+    div.innerHTML = `
+      <div class="r-num">❌ 오답 ${idx + 1} · ${item.q.cat}</div>
+      <div class="r-q">${item.q.q}</div>
+      <div class="r-my">내 답: ${item.myAns}</div>
+      <div class="r-ans">✅ 정답: ${item.q.opts[item.q.ans]}</div>
+      <div class="r-exp">💡 ${item.q.exp}</div>
+    `;
+    list.appendChild(div);
+  });
+  section.style.display = 'block';
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function retryQuiz() {
+  document.getElementById('score-screen').style.display = 'none';
+  document.getElementById('review-section').style.display = 'none';
+  startQuiz();
+}
+</script>
+</body>
+</html>
